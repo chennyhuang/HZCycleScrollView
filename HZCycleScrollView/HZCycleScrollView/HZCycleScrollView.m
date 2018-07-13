@@ -1,0 +1,250 @@
+//
+//  HZCycleScrollView.m
+//  HZCycleScrollView
+//
+//  Created by huangzhenyu on 2018/7/13.
+//  Copyright © 2018年 huangzhenyu. All rights reserved.
+//
+
+#import "HZCycleScrollView.h"
+#import "UIImageView+WebCache.h"
+//#import "HZCycleItemView.h"
+
+@interface HZCycleScrollView()<UIScrollViewDelegate>
+@property (nonatomic,strong) UIScrollView *scrollView;
+@property (nonatomic,strong) NSMutableArray *itemArray;
+@property (nonatomic,strong) NSMutableArray *actualUrlArray;
+
+@end
+
+@implementation HZCycleScrollView
+- (instancetype)initWithFrame:(CGRect)frame{
+    if([super initWithFrame:frame]){
+        [self initUI];
+    }
+    return self;
+}
+
+- (void)layoutSubviews{
+    [super layoutSubviews];
+    [self adjustFrame];
+}
+
+#pragma mark getter setter
+- (UIScrollView *)scrollView{
+    if (!_scrollView) {
+        _scrollView = [[UIScrollView alloc] init];
+        _scrollView.showsVerticalScrollIndicator = NO;
+        _scrollView.showsHorizontalScrollIndicator = NO;
+        _scrollView.delegate = self;
+        _scrollView.pagingEnabled = YES;
+        _scrollView.clipsToBounds = NO;
+        _scrollView.alwaysBounceHorizontal = NO;
+        if (@available(iOS 11.0, *)) {
+            _scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+        }
+    }
+    return _scrollView;
+}
+
+- (NSMutableArray *)itemArray{
+    if (!_itemArray) {
+        _itemArray = [NSMutableArray arrayWithCapacity:3];
+    }
+    return _itemArray;
+}
+
+- (NSMutableArray *)actualUrlArray{
+    if (!_actualUrlArray) {
+        _actualUrlArray = [NSMutableArray arrayWithCapacity:3];
+    }
+    return _actualUrlArray;
+}
+
+- (void)setCycleScrollViewStyle:(HZCycleScrollViewStyle)cycleScrollViewStyle{
+    _cycleScrollViewStyle = cycleScrollViewStyle;
+    [self removeAllItems];
+    [self addAllItems];
+    [self adjustFrame];
+}
+
+- (void)setUrlArray:(NSArray *)urlArray{
+    _urlArray = urlArray;
+    if (urlArray.count > 0) {
+        [self removeAllItems];
+        [self addAllItems];
+        [self adjustFrame];
+    }
+}
+
+//- (void)setItemSpace:(CGFloat)itemSpace{
+//    _itemSpace = itemSpace;
+//    [self adjustFrame];
+//}
+
+//- (void)setItemLeftSpace:(CGFloat)itemLeftSpace{
+//    _itemLeftSpace = itemLeftSpace;
+//    [self adjustFrame];
+//}
+//
+//- (void)setItemRightSpace:(CGFloat)itemRightSpace{
+//    _itemRightSpace = itemRightSpace;
+//    [self adjustFrame];
+//}
+
+- (void)setRightLeakSpace:(CGFloat)rightLeakSpace{
+    _rightLeakSpace = rightLeakSpace;
+    [self adjustFrame];
+}
+
+- (void)setPlaceHolderImage:(UIImage *)placeHolderImage{
+    _placeHolderImage = placeHolderImage;
+    for (int i = 0; i < self.itemArray.count; i++) {
+        UIImageView *itemView = self.itemArray[i];
+        NSString *url = self.actualUrlArray[i];
+        [itemView sd_setImageWithURL:[NSURL URLWithString:url] placeholderImage:_placeHolderImage];
+    }
+}
+
+- (void)addAllItems{
+    if (self.cycleScrollViewStyle == HZCycleScrollViewStyleLoop) {//循环滚动
+        
+        //添加item
+        for (int i = 0; i < _urlArray.count; i++) {
+            UIImageView *itemView = [self createItem:_urlArray[i]];
+            [self.scrollView addSubview:itemView];
+            [self.itemArray addObject:itemView];
+            [self.actualUrlArray addObject:_urlArray[i]];
+        }
+        if (_urlArray.count <= 1) {//只有一张图
+            return;
+        }
+        if (_urlArray.count > 1) {
+            //最左侧添加最后一张图片
+            UIImageView *lastItemView = [self createItem:_urlArray.lastObject];
+            [self.scrollView addSubview:lastItemView];
+            [self.itemArray insertObject:lastItemView atIndex:0];
+            [self.actualUrlArray insertObject:_urlArray.lastObject atIndex:0];
+            
+            //最右侧添加第一张图片
+            UIImageView *firstItemView = [self createItem:_urlArray.firstObject];
+            [self.scrollView addSubview:firstItemView];
+            [self.itemArray addObject:firstItemView];
+            [self.actualUrlArray addObject:_urlArray.firstObject];
+        }
+        
+    } else {
+        //添加item
+        for (int i = 0; i < _urlArray.count; i++) {
+            UIImageView *itemView = [self createItem:_urlArray[i]];
+            [self.scrollView addSubview:itemView];
+            [self.itemArray addObject:itemView];
+            [self.actualUrlArray addObject:_urlArray[i]];
+        }
+    }
+}
+
+- (UIImageView *)createItem:(NSString *)url{
+    UIImageView *itemView = [[UIImageView alloc] init];
+//    itemView.backgroundColor = [UIColor redColor];
+//    itemView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    [itemView sd_setImageWithURL:[NSURL URLWithString:url] placeholderImage:self.placeHolderImage];
+    return itemView;
+}
+
+#pragma mark private
+- (void)removeAllItems{
+    NSArray *tempArr = [self.itemArray copy];
+    for (UIView *item in tempArr) {
+        if ([item isKindOfClass:[UIImageView class]]) {
+            [item removeFromSuperview];
+            [self.itemArray removeObject:item];
+        }
+    }
+    [self.actualUrlArray removeAllObjects];
+}
+
+- (void)adjustFrame{
+    CGFloat width = self.frame.size.width;
+    CGFloat height = self.frame.size.height;
+    if (width <= 0 || height <= 0) {
+        return;
+    }
+    if (self.itemArray.count <= 0) {
+        return;
+    }
+    self.scrollView.frame = CGRectMake(0, 0, width - _rightLeakSpace, height);
+    CGFloat scrollW = self.scrollView.frame.size.width;
+    NSUInteger itemCount = self.itemArray.count;
+    CGFloat itemW = scrollW - self.itemSpace;
+    self.scrollView.contentSize = CGSizeMake(itemCount * scrollW, height);
+    for (int i = 0; i < itemCount; i++) {
+        UIImageView *itemView = self.itemArray[i];
+        CGFloat itemX = i * itemW + (i + 1) * self.itemSpace;
+        CGFloat itemY = 0;
+        CGFloat itemH = height;
+        itemView.frame = CGRectMake(itemX, itemY, itemW, itemH);
+    }
+    if (self.cycleScrollViewStyle == HZCycleScrollViewStyleDefault) {//默认不循环
+        //将scrollView滚动到0
+        [self.scrollView setContentOffset:CGPointMake(0, 0) animated:NO];
+    } else {
+        if (self.itemArray.count <= 1) {
+            [self.scrollView setContentOffset:CGPointMake(0, 0) animated:NO];
+        } else {
+            //将scrollView滚动到第二个item
+            [self.scrollView setContentOffset:CGPointMake(scrollW, 0) animated:NO];
+        }
+        
+    }
+    
+}
+
+- (void)initUI{
+    _itemSpace = 20;
+    _rightLeakSpace = 50;
+//    self.itemLeftSpace = 20;
+//    self.itemRightSpace = 40;
+    [self addSubview:self.scrollView];
+}
+
+#pragma mark UIScrollViewDelegate
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    CGFloat scrollViewW = scrollView.frame.size.width;
+    NSLog(@"contentOffsetX  --- %f",scrollView.contentOffset.x);
+    NSLog(@"scrollViewDidEndDecelerating");
+
+    if (self.cycleScrollViewStyle == HZCycleScrollViewStyleDefault) {//默认不循环
+
+    } else {
+        if (self.itemArray.count <= 1) {
+            return;
+        }
+        // 根据偏移量获取到当前展示的是图片几
+        NSInteger pageNum = scrollView.contentOffset.x / scrollViewW;
+
+        /*
+         判断如果当前展示的是否是最后一张图片(图片1),
+         如果是的话就滚动到第二张图片(图片1)的位置
+         如果当前展示的是第一张图片(图片5)的话就滚动到第六张(图片5)的位置
+         */
+        if (pageNum == self.itemArray.count - 1)
+        {
+            [scrollView setContentOffset:CGPointMake(scrollViewW, 0) animated:NO];
+//            self.pageControl.currentPage = 0;
+            return;
+        }
+        else if (pageNum == 0)
+        {
+            [scrollView setContentOffset:CGPointMake(scrollViewW * (self.itemArray.count - 2), 0) animated:NO];
+//            self.pageControl.currentPage = self.itemArray.count - 2;
+            return;
+        }
+
+        // 设置pageControl的currentPage数
+//        self.pageControl.currentPage = pageNum - 1;
+
+    }
+}
+
+@end
