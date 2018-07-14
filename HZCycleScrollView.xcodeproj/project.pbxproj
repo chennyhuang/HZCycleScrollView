@@ -33,7 +33,6 @@
 		EEBBE57720F8818300565A9F /* UIImageView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBBE56420F8818300565A9F /* UIImageView+WebCache.m */; };
 		EEBBE57820F8818300565A9F /* UIView+WebCache.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBBE56620F8818300565A9F /* UIView+WebCache.m */; };
 		EEBBE57920F8818300565A9F /* UIView+WebCacheOperation.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBBE56820F8818300565A9F /* UIView+WebCacheOperation.m */; };
-		EEBBE57C20F885E200565A9F /* HZCycleItemView.m in Sources */ = {isa = PBXBuildFile; fileRef = EEBBE57B20F885E200565A9F /* HZCycleItemView.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -107,8 +106,6 @@
 		EEBBE56620F8818300565A9F /* UIView+WebCache.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+WebCache.m"; sourceTree = "<group>"; };
 		EEBBE56720F8818300565A9F /* UIView+WebCacheOperation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+WebCacheOperation.h"; sourceTree = "<group>"; };
 		EEBBE56820F8818300565A9F /* UIView+WebCacheOperation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+WebCacheOperation.m"; sourceTree = "<group>"; };
-		EEBBE57A20F885E200565A9F /* HZCycleItemView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = HZCycleItemView.h; sourceTree = "<group>"; };
-		EEBBE57B20F885E200565A9F /* HZCycleItemView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HZCycleItemView.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -197,8 +194,6 @@
 			children = (
 				EE59103620F861280012DB14 /* HZCycleScrollView.h */,
 				EE59103720F861280012DB14 /* HZCycleScrollView.m */,
-				EEBBE57A20F885E200565A9F /* HZCycleItemView.h */,
-				EEBBE57B20F885E200565A9F /* HZCycleItemView.m */,
 			);
 			path = HZCycleScrollView;
 			sourceTree = "<group>";
@@ -390,7 +385,6 @@
 				EEBBE57320F8818300565A9F /* UIButton+WebCache.m in Sources */,
 				EEBBE57920F8818300565A9F /* UIView+WebCacheOperation.m in Sources */,
 				EEBBE57520F8818300565A9F /* UIImage+MultiFormat.m in Sources */,
-				EEBBE57C20F885E200565A9F /* HZCycleItemView.m in Sources */,
 				EEBBE57720F8818300565A9F /* UIImageView+WebCache.m in Sources */,
 				EEBBE56C20F8818300565A9F /* SDImageCacheConfig.m in Sources */,
 				EEBBE57020F8818300565A9F /* SDWebImageDownloaderOperation.m in Sources */,

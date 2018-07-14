@@ -79,21 +79,6 @@
     }
 }
 
-//- (void)setItemSpace:(CGFloat)itemSpace{
-//    _itemSpace = itemSpace;
-//    [self adjustFrame];
-//}
-
-//- (void)setItemLeftSpace:(CGFloat)itemLeftSpace{
-//    _itemLeftSpace = itemLeftSpace;
-//    [self adjustFrame];
-//}
-//
-//- (void)setItemRightSpace:(CGFloat)itemRightSpace{
-//    _itemRightSpace = itemRightSpace;
-//    [self adjustFrame];
-//}
-
 - (void)setRightLeakSpace:(CGFloat)rightLeakSpace{
     _rightLeakSpace = rightLeakSpace;
     [self adjustFrame];
@@ -114,6 +99,7 @@
         //添加item
         for (int i = 0; i < _urlArray.count; i++) {
             UIImageView *itemView = [self createItem:_urlArray[i]];
+            itemView.tag = i;
             [self.scrollView addSubview:itemView];
             [self.itemArray addObject:itemView];
             [self.actualUrlArray addObject:_urlArray[i]];
@@ -124,12 +110,14 @@
         if (_urlArray.count > 1) {
             //最左侧添加最后一张图片
             UIImageView *lastItemView = [self createItem:_urlArray.lastObject];
+            lastItemView.tag = _urlArray.count - 1;
             [self.scrollView addSubview:lastItemView];
             [self.itemArray insertObject:lastItemView atIndex:0];
             [self.actualUrlArray insertObject:_urlArray.lastObject atIndex:0];
             
             //最右侧添加第一张图片
             UIImageView *firstItemView = [self createItem:_urlArray.firstObject];
+            firstItemView.tag = 0;
             [self.scrollView addSubview:firstItemView];
             [self.itemArray addObject:firstItemView];
             [self.actualUrlArray addObject:_urlArray.firstObject];
@@ -139,6 +127,7 @@
         //添加item
         for (int i = 0; i < _urlArray.count; i++) {
             UIImageView *itemView = [self createItem:_urlArray[i]];
+            itemView.tag = i;
             [self.scrollView addSubview:itemView];
             [self.itemArray addObject:itemView];
             [self.actualUrlArray addObject:_urlArray[i]];
@@ -148,8 +137,9 @@
 
 - (UIImageView *)createItem:(NSString *)url{
     UIImageView *itemView = [[UIImageView alloc] init];
-//    itemView.backgroundColor = [UIColor redColor];
-//    itemView.frame = CGRectMake(0, 0, self.frame.size.width, self.frame.size.height);
+    itemView.userInteractionEnabled = YES;
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tap:)];
+    [itemView addGestureRecognizer:tap];
     [itemView sd_setImageWithURL:[NSURL URLWithString:url] placeholderImage:self.placeHolderImage];
     return itemView;
 }
@@ -205,17 +195,22 @@
 - (void)initUI{
     _itemSpace = 20;
     _rightLeakSpace = 50;
-//    self.itemLeftSpace = 20;
-//    self.itemRightSpace = 40;
     self.clipsToBounds = YES;
     [self addSubview:self.scrollView];
+}
+
+- (void)tap:(UIGestureRecognizer *)gesture{
+    NSInteger index = gesture.view.tag;
+    if (self.selectItemBlock) {
+        self.selectItemBlock(index);
+    }
 }
 
 #pragma mark UIScrollViewDelegate
 - (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
     CGFloat scrollViewW = scrollView.frame.size.width;
-    NSLog(@"contentOffsetX  --- %f",scrollView.contentOffset.x);
-    NSLog(@"scrollViewDidEndDecelerating");
+//    NSLog(@"contentOffsetX  --- %f",scrollView.contentOffset.x);
+//    NSLog(@"scrollViewDidEndDecelerating");
 
     if (self.cycleScrollViewStyle == HZCycleScrollViewStyleDefault) {//默认不循环
 
@@ -260,7 +255,7 @@
         {
             CGPoint offset = CGPointMake(point.x - _scrollView.frame.origin.x + _scrollView.contentOffset.x - subview.frame.origin.x,
                                          point.y - _scrollView.frame.origin.y + _scrollView.contentOffset.y - subview.frame.origin.y);
-            NSLog(@"offset -- %@",NSStringFromCGPoint(offset));
+//            NSLog(@"offset -- %@",NSStringFromCGPoint(offset));
             if ((view = [subview hitTest:offset withEvent:event]))
             {
                 return view;

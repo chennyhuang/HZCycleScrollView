@@ -18,12 +18,9 @@ typedef NS_ENUM(NSInteger,HZCycleScrollViewStyle) {
 @interface HZCycleScrollView : UIView
 @property (nonatomic,assign) HZCycleScrollViewStyle cycleScrollViewStyle;
 @property (nonatomic,strong) NSArray<NSString *> *urlArray;
-
 @property (nonatomic,assign) CGFloat itemSpace;//item之间的间距,内部间距（不包括最左边和最右边） 可以设置负值
-
 @property (nonatomic,assign) CGFloat rightLeakSpace;
-
 @property (nonatomic,strong) UIImage *placeHolderImage;
 
-- (void)setCurrentIndex:(NSUInteger)index;
+@property (nonatomic,copy) void(^selectItemBlock)(NSInteger index);
 @end
