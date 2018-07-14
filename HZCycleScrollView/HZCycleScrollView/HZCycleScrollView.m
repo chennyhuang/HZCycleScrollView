@@ -40,6 +40,8 @@
         _scrollView.pagingEnabled = YES;
         _scrollView.clipsToBounds = NO;
         _scrollView.alwaysBounceHorizontal = NO;
+        //decelerationrate 设置当它减速时的速度,0.1f的话,很快就停下来,1就正常速度停下,即滑动一定距离才停.
+        _scrollView.decelerationRate = 0;
         if (@available(iOS 11.0, *)) {
             _scrollView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
         }
@@ -205,6 +207,7 @@
     _rightLeakSpace = 50;
 //    self.itemLeftSpace = 20;
 //    self.itemRightSpace = 40;
+    self.clipsToBounds = YES;
     [self addSubview:self.scrollView];
 }
 
@@ -247,4 +250,24 @@
     }
 }
 
+#pragma mark hitTest
+- (UIView *)hitTest:(CGPoint)point withEvent:(UIEvent *)event
+{
+    UIView *view = [super hitTest:point withEvent:event];
+    if ([view isEqual:self])
+    {
+        for (UIView *subview in _scrollView.subviews)
+        {
+            CGPoint offset = CGPointMake(point.x - _scrollView.frame.origin.x + _scrollView.contentOffset.x - subview.frame.origin.x,
+                                         point.y - _scrollView.frame.origin.y + _scrollView.contentOffset.y - subview.frame.origin.y);
+            NSLog(@"offset -- %@",NSStringFromCGPoint(offset));
+            if ((view = [subview hitTest:offset withEvent:event]))
+            {
+                return view;
+            }
+        }
+        return _scrollView;
+    }
+    return view;
+}
 @end
